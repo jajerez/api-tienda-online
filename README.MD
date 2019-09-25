@@ -7,7 +7,7 @@ Se expone en la nube de amazon(AWS) el servicio ws-tienda-online
 * [NodeJs](https://nodejs.org/es/)
 * [AWS-Cli](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html)
 
-##### Instrucciones de deploy:
+### Instrucciones de deploy: ###
 
 Los parámetros para el deploy a tener en cuenta son los siguientes:
 * **template-file**: url donde está el fichero yaml
