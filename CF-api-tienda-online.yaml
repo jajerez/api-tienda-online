@@ -1,0 +1,124 @@
+
+Parameters:
+  apiName: 
+    Type: String
+    Default: "api-tienda-online"
+  stageName:
+    Type: String
+    Default: "v1"
+  version:
+    Type: String
+    Default: "1.0.0"
+  BaseUrl:
+    Type: String
+    Default: "18.216.187.17:8080/ws-tienda-online/recursosweb"
+  apienvironment: 
+    Type: String
+    Default: "dev"
+Resources:
+  MyRestApi:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Body:
+        openapi: "3.0.1"
+        info:
+          title: !Join [ "-", [ !Ref apienvironment,!Ref apiName ] ]
+          version: !Ref version
+        paths:
+          /v1/producto:
+            post:
+              security:
+              - customAuth: []
+              x-amazon-apigateway-integration:
+                uri: "http://${stageVariables.baseUrl}/v1/producto"
+                responses:
+                  default:
+                    statusCode: "200"
+                passthroughBehavior: "when_no_match"
+                httpMethod: "POST"
+                type: "http_proxy"
+          /v1/producto2:
+            post:
+              security:
+              - customAuth: []
+              x-amazon-apigateway-integration:
+                uri: "http://${stageVariables.baseUrl}/v1/producto"
+                responses:
+                  default:
+                    statusCode: "200"
+                passthroughBehavior: "when_no_match"
+                httpMethod: "GET"
+                type: "http_proxy"                                
+      Description: !Join [ " ", [ !Ref apiName, !Ref version ] ]
+      Name:
+        !Join [ "-", [ !Ref apienvironment,!Ref apiName ] ]
+      Parameters:
+        endpointConfigurationTypes: REGIONAL
+      
+  MyRestApiStage:
+    DependsOn:
+      - ApiGatewayAccount
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      DeploymentId:
+        Ref: ApiDeployment
+      MethodSettings:
+        - DataTraceEnabled: true
+          HttpMethod: "*"
+          LoggingLevel: INFO
+          ResourcePath: "/*"
+      RestApiId:
+        Ref: MyRestApi
+      StageName: !Ref stageName
+      Variables:
+        baseUrl: !Ref BaseUrl
+
+  ApiGatewayCloudWatchLogsRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - apigateway.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: ApiGatewayLogsPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:DescribeLogGroups
+                  - logs:DescribeLogStreams
+                  - logs:PutLogEvents
+                  - logs:GetLogEvents
+                  - logs:FilterLogEvents
+                Resource: "*"
+        
+
+  ApiGatewayAccount:
+    Type: AWS::ApiGateway::Account
+    Properties:
+      CloudWatchRoleArn:
+        Fn::GetAtt:
+          - ApiGatewayCloudWatchLogsRole
+          - Arn
+  ApiDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn:
+      - MyRestApi
+    Properties:
+      RestApiId:
+        Ref: MyRestApi
+      StageName: ""
+
+Outputs:
+  ApiStageEndpoint:
+    Description: Endpoint de la stage desplegada de la API
+    Value: !Sub "https://${MyRestApi}.execute-api.${AWS::Region}.amazonaws.com/${stageName}/"
