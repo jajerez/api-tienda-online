@@ -18,5 +18,5 @@ Los parámetros para el deploy a tener en cuenta son los siguientes:
 Ejecutar el comando deploy
 
 ```sh
-aws cloudformation deploy --template-file ./CF-api-tienda-online.yaml --stack-name api-tienda-online --capabilities CAPABILITY_IAM --tags CC=01 Proyecto="Api tienda online"aws cloudformation deploy --template-file ./CF-api-tienda-online.yaml --stack-name api-tienda-online --capabilities CAPABILITY_IAM --tags CC=01 Proyecto="Api tienda online"
+aws cloudformation deploy --template-file ./CF-api-tienda-online.yaml --stack-name api-tienda-online --capabilities CAPABILITY_IAM --tags CC=01 Proyecto="Api tienda online"
 ``` 
