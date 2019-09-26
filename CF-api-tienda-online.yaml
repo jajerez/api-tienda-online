@@ -37,8 +37,8 @@ Resources:
                 passthroughBehavior: "when_no_match"
                 httpMethod: "POST"
                 type: "http_proxy"
-          /v1/producto2:
-            post:
+          /v1/producto/todos:
+            get:
               security:
               - customAuth: []
               x-amazon-apigateway-integration:
@@ -48,7 +48,67 @@ Resources:
                     statusCode: "200"
                 passthroughBehavior: "when_no_match"
                 httpMethod: "GET"
-                type: "http_proxy"                                
+                type: "http_proxy"  
+          /v1/producto/{id}:
+            get:
+              parameters:
+              - name: "id"
+                in: "path"
+                required: true
+                schema:
+                  type: "int"
+              security:
+              - customAuth: []
+              x-amazon-apigateway-integration:
+                uri: "http://${stageVariables.baseUrl}/v1/producto/{id}"
+                responses:
+                  default:
+                    statusCode: "200"
+                requestParameters:
+                  integration.request.path.id: "method.request.path.id"
+                passthroughBehavior: "when_no_match"
+                httpMethod: "GET"
+                type: "http_proxy"
+          /v1/producto/br/{id}:
+            delete:
+              parameters:
+              - name: "id"
+                in: "path"
+                required: true
+                schema:
+                  type: "int"
+              security:
+              - customAuth: []
+              x-amazon-apigateway-integration:
+                uri: "http://${stageVariables.baseUrl}/v1/producto/{id}"
+                responses:
+                  default:
+                    statusCode: "200"
+                requestParameters:
+                  integration.request.path.id: "method.request.path.id"
+                passthroughBehavior: "when_no_match"
+                httpMethod: "DELETE"
+                type: "http_proxy" 
+          /v1/producto/ac/{id}:
+            put:
+              parameters:
+              - name: "id"
+                in: "path"
+                required: true
+                schema:
+                  type: "int"
+              security:
+              - customAuth: []
+              x-amazon-apigateway-integration:
+                uri: "http://${stageVariables.baseUrl}/v1/producto/{id}"
+                responses:
+                  default:
+                    statusCode: "200"
+                requestParameters:
+                  integration.request.path.id: "method.request.path.id"
+                passthroughBehavior: "when_no_match"
+                httpMethod: "PUT"
+                type: "http_proxy"                                                  
       Description: !Join [ " ", [ !Ref apiName, !Ref version ] ]
       Name:
         !Join [ "-", [ !Ref apienvironment,!Ref apiName ] ]
