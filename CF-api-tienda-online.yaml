@@ -11,10 +11,13 @@ Parameters:
     Default: "1.0.0"
   BaseUrl:
     Type: String
-    Default: "18.216.187.17:8080/ws-tienda-online/recursosweb"
+    Default: "18.216.187.17:8080/ws-tienda-online"
   apienvironment: 
     Type: String
     Default: "dev"
+  BaseSource:
+    Type: String
+    Default: "recursosweb"
 Resources:
   MyRestApi:
     Type: AWS::ApiGateway::RestApi
@@ -25,31 +28,31 @@ Resources:
           title: !Join [ "-", [ !Ref apienvironment,!Ref apiName ] ]
           version: !Ref version
         paths:
-          /v1/producto:
+          /producto:
             post:
               security:
               - customAuth: []
               x-amazon-apigateway-integration:
-                uri: "http://${stageVariables.baseUrl}/v1/producto"
+                uri: "http://${stageVariables.baseUrl}/${stageVariables.BaseSource}/v1/producto"
                 responses:
                   default:
                     statusCode: "200"
                 passthroughBehavior: "when_no_match"
                 httpMethod: "POST"
                 type: "http_proxy"
-          /v1/producto/todos:
+          /producto/todos:
             get:
               security:
               - customAuth: []
               x-amazon-apigateway-integration:
-                uri: "http://${stageVariables.baseUrl}/v1/producto"
+                uri: "http://${stageVariables.baseUrl}/${stageVariables.BaseSource}/v1/producto"
                 responses:
                   default:
                     statusCode: "200"
                 passthroughBehavior: "when_no_match"
                 httpMethod: "GET"
                 type: "http_proxy"  
-          /v1/producto/{id}:
+          /producto/{id}:
             get:
               parameters:
               - name: "id"
@@ -60,7 +63,7 @@ Resources:
               security:
               - customAuth: []
               x-amazon-apigateway-integration:
-                uri: "http://${stageVariables.baseUrl}/v1/producto/{id}"
+                uri: "http://${stageVariables.baseUrl}/${stageVariables.BaseSource}/v1/producto/{id}"
                 responses:
                   default:
                     statusCode: "200"
@@ -69,7 +72,7 @@ Resources:
                 passthroughBehavior: "when_no_match"
                 httpMethod: "GET"
                 type: "http_proxy"
-          /v1/producto/br/{id}:
+          /producto/br/{id}:
             delete:
               parameters:
               - name: "id"
@@ -80,7 +83,7 @@ Resources:
               security:
               - customAuth: []
               x-amazon-apigateway-integration:
-                uri: "http://${stageVariables.baseUrl}/v1/producto/{id}"
+                uri: "http://${stageVariables.baseUrl}/${stageVariables.BaseSource}/v1/producto/{id}"
                 responses:
                   default:
                     statusCode: "200"
@@ -89,7 +92,7 @@ Resources:
                 passthroughBehavior: "when_no_match"
                 httpMethod: "DELETE"
                 type: "http_proxy" 
-          /v1/producto/ac/{id}:
+          /producto/ac/{id}:
             put:
               parameters:
               - name: "id"
@@ -100,7 +103,7 @@ Resources:
               security:
               - customAuth: []
               x-amazon-apigateway-integration:
-                uri: "http://${stageVariables.baseUrl}/v1/producto/{id}"
+                uri: "http://${stageVariables.baseUrl}/${stageVariables.BaseSource}/v1/producto/{id}"
                 responses:
                   default:
                     statusCode: "200"
@@ -132,7 +135,7 @@ Resources:
       StageName: !Ref stageName
       Variables:
         baseUrl: !Ref BaseUrl
-
+        BaseSource: !Ref BaseSource
   ApiGatewayCloudWatchLogsRole:
     Type: AWS::IAM::Role
     Properties:
