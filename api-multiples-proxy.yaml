@@ -1,0 +1,91 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Proxy API Gateway para exponer Swagger en puertos distintos
+
+Resources:
+  SwaggerHttpApi:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: SwaggerApiGateway
+      ProtocolType: HTTP
+      CorsConfiguration:
+        AllowOrigins:
+          - "*"
+        AllowMethods:
+          - "GET"
+          - "OPTIONS"
+        AllowHeaders:
+          - "*"
+
+  # Integración para /api-docs
+  IntegrationApiDocs:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref SwaggerHttpApi
+      IntegrationType: HTTP_PROXY
+      IntegrationMethod: ANY
+      IntegrationUri: http://84.16.229.75:3002/api-docs/{proxy}
+      PayloadFormatVersion: "1.0"
+
+  RouteApiDocs:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref SwaggerHttpApi
+      RouteKey: "ANY /api-docs/{proxy+}"
+      Target: !Sub integrations/${IntegrationApiDocs}
+
+  # Integración para /ws-tienda-online
+  IntegrationWsTienda:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref SwaggerHttpApi
+      IntegrationType: HTTP_PROXY
+      IntegrationMethod: ANY
+      IntegrationUri: http://84.16.229.75:8282/ws-tienda-online/{proxy}
+      PayloadFormatVersion: "1.0"
+
+  RouteWsTienda:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref SwaggerHttpApi
+      RouteKey: "ANY /ws-tienda-online/{proxy+}"
+      Target: !Sub integrations/${IntegrationWsTienda}
+  # Integración para /api
+  IntegrationApi:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref SwaggerHttpApi
+      IntegrationType: HTTP_PROXY
+      IntegrationMethod: ANY
+      IntegrationUri: http://84.16.229.75:3002/api/{proxy}
+      PayloadFormatVersion: "1.0"
+
+  RouteApi:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref SwaggerHttpApi
+      RouteKey: "ANY /api/{proxy+}"
+      Target: !Sub integrations/${IntegrationApi}
+
+
+  # Deployment
+  Deployment:
+    Type: AWS::ApiGatewayV2::Deployment
+    DependsOn:
+      - RouteApiDocs
+      - RouteWsTienda
+      - RouteApi
+    Properties:
+      ApiId: !Ref SwaggerHttpApi
+
+  Stage:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      StageName: "$default"
+      ApiId: !Ref SwaggerHttpApi
+      DeploymentId: !Ref Deployment
+      AutoDeploy: true
+
+Outputs:
+  ApiGatewayEndpoint:
+    Description: URL base del API Gateway
+    Value: !Sub "https://${SwaggerHttpApi}.execute-api.${AWS::Region}.amazonaws.com"

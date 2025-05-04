@@ -14,9 +14,13 @@ Los parámetros para el deploy a tener en cuenta son los siguientes:
 * **stack-name**: el nombre del stack en cloudformation
 * **capabilities CAPABILITY_IAM**: confirmación para la creación de recursos de IAM
 * **tags**: etiquetas opcionales para la identificación de recursos con la sintaxis key1=valor1 key2=valor2 etc
+* **region**: region indicada de despliegue
 
-Ejecutar el comando deploy
+Ejecutar el comando api-productos
 
 ```sh
-aws cloudformation deploy --template-file ./CF-api-tienda-online.yaml --stack-name api-tienda-online --capabilities CAPABILITY_IAM --tags CC=01 Proyecto="Api tienda online"
+ aws cloudformation deploy   --template-file api-multiples-proxy.yaml   --stack-name SwaggerDualProxy-v2   --capabilities CAPABILITY_IAM --region us-east-1
+
 ``` 
+Ejecutar el comando ws-tienda-online
+
